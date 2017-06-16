@@ -19,6 +19,10 @@ RSpec.describe Question, type: :model do
       expect(question).to have_many(:answers)
     end
 
+    it 'belongs to a user' do
+      expect(question).to belong_to :user
+    end
+
     context 'when question is deleted' do
       let(:question) { FactoryGirl.create(:question) }
       let!(:answer) { FactoryGirl.create(:answer, question: question) }

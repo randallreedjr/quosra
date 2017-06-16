@@ -2,7 +2,8 @@ require 'rails_helper'
 
 RSpec.describe "questions/edit", type: :view do
   before(:each) do
-    @question = assign(:question, Question.create!(
+    @question = assign(:question, FactoryGirl.create(
+      :question,
       :title => "MyString",
       :description => "MyText"
     ))

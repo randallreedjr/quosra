@@ -1,12 +1,7 @@
 class AnswersController < ApplicationController
   before_action :set_answer, only: [:show, :edit, :update, :destroy]
   before_action :set_question, only: [:index, :new, :create] # for other actions, question will come from associated answer(s)
-
-  # GET /answers
-  # GET /answers.json
-  def index
-    @answers = Answer.for_question(@question)
-  end
+  before_action :authenticate_user!, except: [:show]
 
   # GET /answers/1
   # GET /answers/1.json
@@ -30,6 +25,7 @@ class AnswersController < ApplicationController
   def create
     # @answer = Answer.new(answer_params)
     @answer = @question.answers.build(answer_params)
+    @answer.user = current_user
 
     respond_to do |format|
       if @answer.save

@@ -7,6 +7,11 @@
 require 'rails_helper'
 
 RSpec.describe 'Questions and Answers', type: :feature do
+  before :each do
+    user = FactoryGirl.create(:user)
+    sign_in user
+  end
+
   context 'viewing list of questions' do
     describe 'creating a new question' do
       it 'displays the question on the questions page' do
