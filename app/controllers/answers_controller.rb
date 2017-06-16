@@ -1,6 +1,6 @@
 class AnswersController < ApplicationController
   before_action :set_answer, only: [:show, :edit, :update, :destroy]
-  before_action :set_question, only: [:index, :new, :create] # for other actions, question will come from associated answer(s)
+  before_action :set_question, only: [:new, :create] # for other actions, question will come from associated answer(s)
   before_action :authenticate_user!, except: [:show]
 
   # GET /answers/1
@@ -11,19 +11,20 @@ class AnswersController < ApplicationController
 
   # GET /answers/new
   def new
-    @question = Question.find(params[:question_id])
     @answer = Answer.new
   end
 
   # GET /answers/1/edit
   def edit
     @question = @answer.question
+    if @answer.user != current_user
+      redirect_to question_answer_path(@question, @answer), notice: 'Answer may only be edited by original author.'
+    end
   end
 
   # POST /answers
   # POST /answers.json
   def create
-    # @answer = Answer.new(answer_params)
     @answer = @question.answers.build(answer_params)
     @answer.user = current_user
 
@@ -41,9 +42,13 @@ class AnswersController < ApplicationController
   # PATCH/PUT /answers/1
   # PATCH/PUT /answers/1.json
   def update
+    @question = @answer.question
     respond_to do |format|
-      if @answer.update(answer_params)
-        format.html { redirect_to question_url(params[:question_id]), notice: 'Answer was successfully updated.' }
+      if @answer.user != current_user
+        format.html { redirect_to question_url(@question), notice: 'Answer may only be updated by original author.' }
+        format.json { render json: { error: 'Answer could not be updated.' }, status: :unprocessable_entity }
+      elsif @answer.update(answer_params)
+        format.html { redirect_to question_url(@question), notice: 'Answer was successfully updated.' }
         format.json { render :show, status: :ok, location: @answer }
       else
         format.html { render :edit }
@@ -55,10 +60,17 @@ class AnswersController < ApplicationController
   # DELETE /answers/1
   # DELETE /answers/1.json
   def destroy
-    @answer.destroy
-    respond_to do |format|
-      format.html { redirect_to question_url(params[:question_id]), notice: 'Answer was successfully deleted.' }
-      format.json { head :no_content }
+    if @answer.user != current_user
+      respond_to do |format|
+        format.html { redirect_to question_url(params[:question_id]), notice: 'Answer may only be deleted by original author.' }
+        format.json { render json: { error: 'Question could not be deleted.' }, status: :unprocessable_entity }
+      end
+    else
+      @answer.destroy
+      respond_to do |format|
+        format.html { redirect_to question_url(params[:question_id]), notice: 'Answer was successfully deleted.' }
+        format.json { head :no_content }
+      end
     end
   end
 

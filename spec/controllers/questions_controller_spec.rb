@@ -12,7 +12,10 @@ RSpec.describe QuestionsController, type: :controller do
   }
 
   let(:invalid_attributes) {
-    skip("Add a hash of attributes invalid for your model")
+    {
+      title: '',
+      description: question.description
+    }
   }
 
   # This should return the minimal set of values that should be in the session
@@ -60,73 +63,172 @@ RSpec.describe QuestionsController, type: :controller do
   end
 
   describe "GET #new" do
-    before :each do
-      user = FactoryGirl.create(:user)
-      sign_in user
+    context 'when user is logged in' do
+      let(:current_user) { FactoryGirl.create(:user) }
+      before :each do
+        sign_in current_user
+      end
+
+      it 'displays the form for a new question' do
+        get :new, params: {}, session: valid_session
+
+        expect(response.body).to match(/<form action="\/questions" accept-charset="UTF-8" method="post"/)
+      end
     end
 
-    it 'displays the form for a new question' do
-      get :new, params: {}, session: valid_session
+    context 'when user is not logged in' do
+      it 'redirects to login page' do
+        get :new, params: {}, session: valid_session
 
-      expect(response.body).to match(/<form action="\/questions" accept-charset="UTF-8" method="post"/)
+        expect(response).to redirect_to(new_user_session_path)
+      end
     end
   end
 
   describe "GET #edit" do
-    before :each do
-      user = FactoryGirl.create(:user)
-      sign_in user
+    context 'when user is logged in' do
+      let(:current_user) { FactoryGirl.create(:user) }
+      before :each do
+        sign_in current_user
+      end
+
+      context 'when user created question' do
+        let(:question) { FactoryGirl.create(:question, user: current_user) }
+        it 'displays the form to edit a question' do
+          get :edit, params: {id: question.to_param}, session: valid_session
+
+          expect(response.body).to match(/<form action="\/questions\/#{question.id}" accept-charset="UTF-8" method="post"/)
+          expect(response.body).to include(CGI.escapeHTML(question.title))
+          expect(response.body).to include(CGI.escapeHTML(question.description))
+        end
+      end
+
+      context 'when user did not create question' do
+        let(:question) { FactoryGirl.create(:question) }
+        it 'redirects to the question' do
+          get :edit, params: {id: question.to_param}, session: valid_session
+
+          expect(response).to redirect_to(question)
+        end
+      end
     end
 
-    let(:question) { FactoryGirl.create(:question) }
-    it 'displays the form to edit a question' do
-      get :edit, params: {id: question.to_param}, session: valid_session
+    context 'when user is not logged in' do
+      let(:question) { FactoryGirl.create(:question) }
 
-      expect(response.body).to match(/<form action="\/questions\/#{question.id}" accept-charset="UTF-8" method="post"/)
-      expect(response.body).to include(CGI.escapeHTML(question.title))
-      expect(response.body).to include(CGI.escapeHTML(question.description))
+      it 'redirects to login page' do
+        get :edit, params: {id: question.to_param}, session: valid_session
+
+        expect(response).to redirect_to(new_user_session_path)
+      end
     end
   end
 
   describe "POST #create" do
-    before :each do
-      user = FactoryGirl.create(:user)
-      sign_in user
-    end
+    context 'when user is logged in' do
+      let(:current_user) { FactoryGirl.create(:user) }
+      before :each do
+        sign_in current_user
+      end
 
-    context "with valid params" do
-      it "creates a new Question" do
-        expect {
+      context "with valid params" do
+        it "creates a new Question" do
+          expect {
+            post :create, params: {question: valid_attributes}, session: valid_session
+          }.to change(Question, :count).by(1)
+        end
+
+        it "redirects to the created question" do
           post :create, params: {question: valid_attributes}, session: valid_session
-        }.to change(Question, :count).by(1)
+          expect(response).to redirect_to(Question.last)
+        end
       end
 
-      it "redirects to the created question" do
-        post :create, params: {question: valid_attributes}, session: valid_session
-        expect(response).to redirect_to(Question.last)
+      context "with invalid params" do
+        it "does not create a new question" do
+          expect {
+            post :create, params: {question: invalid_attributes}, session: valid_session
+          }.to_not change(Question, :count)
+        end
       end
     end
 
-    xcontext "with invalid params" do
-      xit "assigns a newly created but unsaved question as @question" do
-        post :create, params: {question: invalid_attributes}, session: valid_session
-        expect(assigns(:question)).to be_a_new(Question)
-      end
-
-      it "re-renders the 'new' template" do
-        post :create, params: {question: invalid_attributes}, session: valid_session
-        expect(response).to render_template("new")
+    context 'when user is not logged in' do
+      it 'redirects to login page' do
+        post :create, params: {question: valid_attributes}, session: valid_session
+        expect(response).to redirect_to(new_user_session_path)
       end
     end
   end
 
   describe "PUT #update" do
-    before :each do
-      user = FactoryGirl.create(:user)
-      sign_in user
+    context 'when user is logged in' do
+      let(:current_user) { FactoryGirl.create(:user) }
+      before :each do
+        sign_in current_user
+      end
+
+      context "with valid params" do
+        let(:new_question) { FactoryGirl.build(:question) }
+        let(:new_attributes) {
+          {
+            title: new_question.title,
+            description: new_question.description
+          }
+        }
+
+        context 'when question was created by current user' do
+          let(:question) { FactoryGirl.create(:question, user: current_user) }
+
+          it "updates the requested question" do
+            put :update, params: {id: question.to_param, question: new_attributes}, session: valid_session
+            question.reload
+            expect(question.title).to eq(new_question.title)
+            expect(question.description).to eq(new_question.description)
+          end
+
+          it "redirects to the question" do
+            put :update, params: {id: question.to_param, question: valid_attributes}, session: valid_session
+            expect(response).to redirect_to(question)
+          end
+        end
+
+        context 'when question was created by different user' do
+          let(:question) { FactoryGirl.create(:question) }
+
+          it 'does not update question title' do
+            expect {
+              put :update, params: {id: question.to_param, question: new_attributes}, session: valid_session
+            }.to_not change(question, :title)
+          end
+
+          it 'does not update question description' do
+            expect {
+              put :update, params: {id: question.to_param, question: new_attributes}, session: valid_session
+            }.to_not change(question, :description)
+          end
+
+          it "redirects to the question" do
+            put :update, params: {id: question.to_param, question: new_attributes}, session: valid_session
+
+            expect(response).to redirect_to(question)
+          end
+        end
+      end
+
+      context "with invalid params" do
+        let(:question) { FactoryGirl.create(:question, user: current_user) }
+
+        it "does not update the question" do
+          put :update, params: {id: question.to_param, question: invalid_attributes}, session: valid_session
+          question.reload
+
+          expect(question.title).to_not be_blank
+        end
+      end
     end
 
-    context "with valid params" do
+    context 'when user is not logged in' do
       let(:question) { FactoryGirl.create(:question) }
       let(:new_question) { FactoryGirl.build(:question) }
       let(:new_attributes) {
@@ -136,51 +238,64 @@ RSpec.describe QuestionsController, type: :controller do
         }
       }
 
-      it "updates the requested question" do
+      it 'redirects to login page' do
         put :update, params: {id: question.to_param, question: new_attributes}, session: valid_session
-        question.reload
-        expect(question.title).to eq(new_question.title)
-        expect(question.description).to eq(new_question.description)
-      end
-
-      it "redirects to the question" do
-        put :update, params: {id: question.to_param, question: valid_attributes}, session: valid_session
-        expect(response).to redirect_to(question)
-      end
-    end
-
-    xcontext "with invalid params" do
-      it "assigns the question as @question" do
-        question = Question.create! valid_attributes
-        put :update, params: {id: question.to_param, question: invalid_attributes}, session: valid_session
-        expect(assigns(:question)).to eq(question)
-      end
-
-      it "re-renders the 'edit' template" do
-        question = Question.create! valid_attributes
-        put :update, params: {id: question.to_param, question: invalid_attributes}, session: valid_session
-        expect(response).to render_template("edit")
+        expect(response).to redirect_to(new_user_session_path)
       end
     end
   end
 
   describe "DELETE #destroy" do
-    before :each do
-      user = FactoryGirl.create(:user)
-      sign_in user
+    context 'when user is logged in' do
+      let(:current_user) { FactoryGirl.create(:user) }
+      before :each do
+        sign_in current_user
+      end
+
+      context 'when user created question' do
+        let!(:question) { FactoryGirl.create(:question, user: current_user) }
+
+        it "deletes the question" do
+          expect {
+            delete :destroy, params: {id: question.to_param}, session: valid_session
+          }.to change(Question, :count).by(-1)
+        end
+
+        it "redirects to the questions list" do
+          delete :destroy, params: {id: question.to_param}, session: valid_session
+          expect(response).to redirect_to(questions_url)
+        end
+      end
+
+      context 'when user did not create question' do
+        let!(:question) { FactoryGirl.create(:question) }
+
+        it 'does not delete the question' do
+          expect {
+            delete :destroy, params: {id: question.to_param}, session: valid_session
+          }.to_not change(Question, :count)
+        end
+
+        it 'redirects to login page' do
+          delete :destroy, params: {id: question.to_param}, session: valid_session
+          expect(response).to redirect_to(question)
+        end
+      end
     end
 
-    let!(:question) { FactoryGirl.create(:question) }
+    context 'when user is not logged in' do
+      let!(:question) { FactoryGirl.create(:question) }
 
-    it "destroys the requested question" do
-      expect {
+      it 'does not delete the question' do
+        expect {
+          delete :destroy, params: {id: question.to_param}, session: valid_session
+        }.to_not change(Question, :count)
+      end
+
+      it 'redirects to login page' do
         delete :destroy, params: {id: question.to_param}, session: valid_session
-      }.to change(Question, :count).by(-1)
-    end
-
-    it "redirects to the questions list" do
-      delete :destroy, params: {id: question.to_param}, session: valid_session
-      expect(response).to redirect_to(questions_url)
+        expect(response).to redirect_to(new_user_session_path)
+      end
     end
   end
 end
