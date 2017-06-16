@@ -32,6 +32,18 @@ gem 'jbuilder', '~> 2.5'
 
 # Use rspec for test suite
 gem 'rspec-rails'
+# Use FactoryGirl and Faker for creating test objects
+gem 'factory_girl'
+gem 'factory_girl_rails'
+gem 'faker'
+# Use shoulda matchers for testing model validations
+ gem 'shoulda-matchers', require: false
+ # Use capybara for feature specs
+ gem 'capybara'
+
+ # Bootstrap for grid layout and styling
+ gem 'bootstrap', git: 'https://github.com/twbs/bootstrap-rubygem'
+ gem 'jquery-rails'
 
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
