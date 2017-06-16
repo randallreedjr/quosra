@@ -32,7 +32,6 @@ RSpec.describe QuestionsController, type: :controller do
     let(:question) { FactoryGirl.create(:question) }
 
     it 'displays the requested question' do
-      question = Question.create! valid_attributes
       get :show, params: {id: question.to_param}, session: valid_session
 
       expect(response.body).to include(CGI.escapeHTML(question.title))
@@ -61,6 +60,11 @@ RSpec.describe QuestionsController, type: :controller do
   end
 
   describe "GET #new" do
+    before :each do
+      user = FactoryGirl.create(:user)
+      sign_in user
+    end
+
     it 'displays the form for a new question' do
       get :new, params: {}, session: valid_session
 
@@ -69,8 +73,13 @@ RSpec.describe QuestionsController, type: :controller do
   end
 
   describe "GET #edit" do
+    before :each do
+      user = FactoryGirl.create(:user)
+      sign_in user
+    end
+
+    let(:question) { FactoryGirl.create(:question) }
     it 'displays the form to edit a question' do
-      question = Question.create! valid_attributes
       get :edit, params: {id: question.to_param}, session: valid_session
 
       expect(response.body).to match(/<form action="\/questions\/#{question.id}" accept-charset="UTF-8" method="post"/)
@@ -80,6 +89,11 @@ RSpec.describe QuestionsController, type: :controller do
   end
 
   describe "POST #create" do
+    before :each do
+      user = FactoryGirl.create(:user)
+      sign_in user
+    end
+
     context "with valid params" do
       it "creates a new Question" do
         expect {
@@ -107,7 +121,13 @@ RSpec.describe QuestionsController, type: :controller do
   end
 
   describe "PUT #update" do
+    before :each do
+      user = FactoryGirl.create(:user)
+      sign_in user
+    end
+
     context "with valid params" do
+      let(:question) { FactoryGirl.create(:question) }
       let(:new_question) { FactoryGirl.build(:question) }
       let(:new_attributes) {
         {
@@ -117,7 +137,6 @@ RSpec.describe QuestionsController, type: :controller do
       }
 
       it "updates the requested question" do
-        question = Question.create! valid_attributes
         put :update, params: {id: question.to_param, question: new_attributes}, session: valid_session
         question.reload
         expect(question.title).to eq(new_question.title)
@@ -125,7 +144,6 @@ RSpec.describe QuestionsController, type: :controller do
       end
 
       it "redirects to the question" do
-        question = Question.create! valid_attributes
         put :update, params: {id: question.to_param, question: valid_attributes}, session: valid_session
         expect(response).to redirect_to(question)
       end
@@ -147,18 +165,22 @@ RSpec.describe QuestionsController, type: :controller do
   end
 
   describe "DELETE #destroy" do
+    before :each do
+      user = FactoryGirl.create(:user)
+      sign_in user
+    end
+
+    let!(:question) { FactoryGirl.create(:question) }
+
     it "destroys the requested question" do
-      question = Question.create! valid_attributes
       expect {
         delete :destroy, params: {id: question.to_param}, session: valid_session
       }.to change(Question, :count).by(-1)
     end
 
     it "redirects to the questions list" do
-      question = Question.create! valid_attributes
       delete :destroy, params: {id: question.to_param}, session: valid_session
       expect(response).to redirect_to(questions_url)
     end
   end
-
 end

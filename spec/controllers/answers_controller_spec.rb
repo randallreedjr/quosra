@@ -32,6 +32,11 @@ RSpec.describe AnswersController, type: :controller do
   end
 
   describe "GET #new" do
+    before :each do
+      user = FactoryGirl.create(:user)
+      sign_in user
+    end
+
     it 'displays the form for a new answer' do
       get :new, params: { question_id: question.id }, session: valid_session
 
@@ -41,8 +46,13 @@ RSpec.describe AnswersController, type: :controller do
   end
 
   describe "GET #edit" do
+    before :each do
+      user = FactoryGirl.create(:user)
+      sign_in user
+    end
+
     it 'displays the form to edit an answer' do
-      answer = Answer.create! valid_attributes
+      answer = FactoryGirl.create(:answer, question: question)
       get :edit, params: {id: answer.to_param, question_id: question.to_param}, session: valid_session
 
       expect(response.body).to match(/<form action="\/questions\/#{question.id}\/answers\/#{answer.id}" accept-charset="UTF-8" method="post"/)
@@ -52,6 +62,11 @@ RSpec.describe AnswersController, type: :controller do
   end
 
   describe "POST #create" do
+    before :each do
+      user = FactoryGirl.create(:user)
+      sign_in user
+    end
+
     context "with valid params" do
       it "creates a new Answer" do
         expect {
@@ -61,6 +76,7 @@ RSpec.describe AnswersController, type: :controller do
 
       it "redirects to the question being answered" do
         post :create, params: {question_id: question.id, answer: valid_attributes}, session: valid_session
+
         expect(response).to redirect_to(question_path(question.id))
       end
     end
@@ -79,7 +95,13 @@ RSpec.describe AnswersController, type: :controller do
   end
 
   describe "PUT #update" do
+    before :each do
+      user = FactoryGirl.create(:user)
+      sign_in user
+    end
+
     context "with valid params" do
+      let(:answer) { FactoryGirl.create(:answer) }
       let(:new_answer) { FactoryGirl.build(:answer) }
       let(:new_attributes) {
         {
@@ -89,7 +111,6 @@ RSpec.describe AnswersController, type: :controller do
       }
 
       it "updates the requested answer" do
-        answer = Answer.create! valid_attributes
         put :update, params: {question_id: question.id, id: answer.to_param, answer: new_attributes}, session: valid_session
         answer.reload
 
@@ -98,7 +119,6 @@ RSpec.describe AnswersController, type: :controller do
       end
 
       it "redirects to the answer" do
-        answer = Answer.create! valid_attributes
         put :update, params: {question_id: question.id, id: answer.to_param, answer: valid_attributes}, session: valid_session
         expect(response).to redirect_to(question_path(question.id))
       end
@@ -120,6 +140,11 @@ RSpec.describe AnswersController, type: :controller do
   end
 
   describe "DELETE #destroy" do
+    before :each do
+      user = FactoryGirl.create(:user)
+      sign_in user
+    end
+
     let(:question) { FactoryGirl.create(:question) }
     let!(:answer) { FactoryGirl.create(:answer, question: question) }
 
