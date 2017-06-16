@@ -2,7 +2,7 @@
   <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
   </button>
-  <a class="navbar-brand" href="#">Quosra</a>
+  <a class="navbar-brand" href="/">Quosra</a>
   <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
     <% if user_signed_in? %>
       <%= link_to 'Log Out', destroy_user_session_path, method: :delete, class: 'nav-item nav-link' %>
