@@ -10,5 +10,19 @@
   <%= @question.description %>
 </p>
 
+<strong>Answers:</strong>
+<% if @answers.any? %>
+  <p>
+    <ul>
+      <% @answers.each do |answer| %>
+        <li><%= answer.content %> | <%= link_to 'View', question_answer_path(@question, answer)%></li>
+      <% end %>
+    </ul>
+  </p>
+<% else %>
+  <p>No one has answered this question yet. Be the first!</p>
+<% end %>
+<%= link_to 'New Answer', new_question_answer_path(@question) %> |
 <%= link_to 'Edit', edit_question_path(@question) %> |
-<%= link_to 'Back', questions_path %>
+<%= link_to 'Delete', @question, method: :delete, data: { confirm: 'Are you sure you want to delete this question?' } %> |
+<%= link_to 'Back to all questions', questions_path %>

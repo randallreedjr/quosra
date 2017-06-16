@@ -2,10 +2,9 @@ require 'rails_helper'
 
 RSpec.describe "questions/show", type: :view do
   before(:each) do
-    @question = assign(:question, Question.create!(
-      :title => "Title",
-      :description => "MyText"
-    ))
+    @question = assign(:question, FactoryGirl.create(:question, title: 'Title', description: 'MyText'))
+    FactoryGirl.create(:answer, question: @question)
+    @answers = assign(:answers, Answer.for_question(@question))
   end
 
   it "renders attributes in <p>" do

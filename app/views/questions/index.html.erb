@@ -18,7 +18,7 @@
         <td><%= question.description %></td>
         <td><%= link_to 'Show', question %></td>
         <td><%= link_to 'Edit', edit_question_path(question) %></td>
-        <td><%= link_to 'Destroy', question, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+        <td><%= link_to 'Delete', question, method: :delete, data: { confirm: 'Are you sure you want to delete this question?' } %></td>
       </tr>
     <% end %>
   </tbody>

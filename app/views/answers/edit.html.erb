@@ -1,0 +1,11 @@
+<p>
+  <strong>Question:</strong>
+  <%= @question.title %>
+</p>
+
+<h1>Editing Answer</h1>
+
+<%= render 'form', question: @question, answer: @answer %>
+
+<%= link_to 'Show', question_answer_path(@question, @answer) %> |
+<%= link_to 'Back', question_path(@question) %>

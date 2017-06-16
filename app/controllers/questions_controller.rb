@@ -56,7 +56,7 @@ class QuestionsController < ApplicationController
   def destroy
     @question.destroy
     respond_to do |format|
-      format.html { redirect_to questions_url, notice: 'Question was successfully destroyed.' }
+      format.html { redirect_to questions_url, notice: 'Question was successfully deleted.' }
       format.json { head :no_content }
     end
   end
@@ -64,7 +64,8 @@ class QuestionsController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_question
-      @question = Question.find(params[:id])
+      @question = Question.includes(:answers).find(params[:id])
+      @answers = @question.answers
     end
 
     # Never trust parameters from the scary internet, only allow the white list through.
