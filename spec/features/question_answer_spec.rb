@@ -1,15 +1,12 @@
-# Visit list of questions
-# View question
-# View answer
-# Back to answers
-# Back to questions
-
 require 'rails_helper'
 
 RSpec.describe 'Questions and Answers', type: :feature do
+  let(:current_user) { FactoryGirl.create(:user) }
+  let(:question) { FactoryGirl.create(:question, user: current_user) }
+  let!(:answer) { FactoryGirl.create(:answer, question: question, user: current_user) }
+
   before :each do
-    user = FactoryGirl.create(:user)
-    sign_in user
+    sign_in current_user
   end
 
   context 'viewing list of questions' do
@@ -29,9 +26,6 @@ RSpec.describe 'Questions and Answers', type: :feature do
   end
 
   context 'viewing a question' do
-    let!(:question) { FactoryGirl.create(:question) }
-    let!(:answer) { FactoryGirl.create(:answer, question: question) }
-
     it 'displays a list of answers' do
       visit '/questions'
       click_link question.title
@@ -99,9 +93,6 @@ RSpec.describe 'Questions and Answers', type: :feature do
   end
 
   context 'viewing an answer' do
-    let!(:question) { FactoryGirl.create(:question) }
-    let!(:answer) { FactoryGirl.create(:answer, question: question) }
-
     it 'displays an the question title and the answer' do
       visit '/questions'
       click_link question.title
@@ -148,9 +139,6 @@ RSpec.describe 'Questions and Answers', type: :feature do
   end
 
   describe 'deleting an answer' do
-    let!(:question) { FactoryGirl.create(:question) }
-    let!(:answer) { FactoryGirl.create(:answer, question: question) }
-
     it 'removes the answer from the question' do
       visit '/questions'
       click_link question.title
@@ -163,9 +151,6 @@ RSpec.describe 'Questions and Answers', type: :feature do
   end
 
   describe 'deleting an question' do
-    let!(:question) { FactoryGirl.create(:question) }
-    let!(:answer) { FactoryGirl.create(:answer, question: question) }
-
     it 'removes the answer from the question' do
       visit '/questions'
       click_link question.title
