@@ -1,0 +1,10 @@
+<p>
+  <strong>Question:</strong>
+  <%= @question.title %>
+</p>
+
+<h1>New Answer</h1>
+
+<%= render 'form', question: @question, answer: @answer %>
+
+<%= link_to 'Back', question_path(@question) %>

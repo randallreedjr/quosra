@@ -22,7 +22,6 @@ RSpec.describe QuestionsController, type: :controller do
 
   describe "GET #index" do
     it 'displays a list of questions' do
-      question = Question.create! valid_attributes
       get :index, params: {}, session: valid_session
 
       expect(response.body).to include('Questions')
@@ -30,12 +29,34 @@ RSpec.describe QuestionsController, type: :controller do
   end
 
   describe "GET #show" do
+    let(:question) { FactoryGirl.create(:question) }
+
     it 'displays the requested question' do
       question = Question.create! valid_attributes
       get :show, params: {id: question.to_param}, session: valid_session
 
       expect(response.body).to include(CGI.escapeHTML(question.title))
       expect(response.body).to include(CGI.escapeHTML(question.description))
+    end
+
+    context 'when the question has no answers' do
+      it 'displays a message encouraging the user to answer' do
+        get :show, params: { id: question.to_param }, session: valid_session
+
+        expect(response.body).to include('No one has answered this question yet. Be the first!')
+      end
+    end
+
+    context 'when the question has answers' do
+      let!(:answer_to_question) { FactoryGirl.create(:answer, question_id: question.id) }
+      let!(:other_answer) { FactoryGirl.create(:answer) }
+
+      it "displays a list of answers for the question" do
+        get :show, params: { id: question.to_param }, session: valid_session
+
+        expect(response.body).to include(CGI.escapeHTML(answer_to_question.content))
+        expect(response.body).to_not include(CGI.escapeHTML(other_answer.content))
+      end
     end
   end
 

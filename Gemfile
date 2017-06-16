@@ -38,6 +38,8 @@ gem 'factory_girl_rails'
 gem 'faker'
 # Use shoulda matchers for testing model validations
  gem 'shoulda-matchers', require: false
+ # Use capybara for feature specs
+ gem 'capybara'
 
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development

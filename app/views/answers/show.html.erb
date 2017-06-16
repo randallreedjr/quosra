@@ -1,0 +1,15 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Question:</strong>
+  <%= @question.title %>
+</p>
+
+<p>
+  <strong>Content:</strong>
+  <%= @answer.content %>
+</p>
+
+<%= link_to 'Edit', edit_question_answer_path(@question, @answer) %> |
+<%= link_to 'Delete', question_answer_path(@question, @answer), method: :delete, data: { confirm: 'Are you sure you want to delete this answer?' } %> |
+<%= link_to 'Back to all answers', question_path(@question) %>
