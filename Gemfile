@@ -41,6 +41,10 @@ gem 'faker'
  # Use capybara for feature specs
  gem 'capybara'
 
+ # Bootstrap for grid layout and styling
+ gem 'bootstrap', git: 'https://github.com/twbs/bootstrap-rubygem'
+ gem 'jquery-rails'
+
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
 

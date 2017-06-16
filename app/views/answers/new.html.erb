@@ -1,10 +1,10 @@
-<p>
+<h3>
   <strong>Question:</strong>
   <%= @question.title %>
-</p>
-
-<h1>New Answer</h1>
+</h3>
 
 <%= render 'form', question: @question, answer: @answer %>
 
-<%= link_to 'Back', question_path(@question) %>
+<hr>
+
+<%= link_to 'Back to question', question_path(@question), class: 'btn btn-warning' %>

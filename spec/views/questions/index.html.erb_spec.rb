@@ -9,14 +9,15 @@ RSpec.describe "questions/index", type: :view do
       ),
       Question.create!(
         :title => "Title",
-        :description => "MyText"
+        :description => "MyOtherText"
       )
     ])
   end
 
   it "renders a list of questions" do
     render
-    assert_select "tr>td", :text => "Title".to_s, :count => 2
-    assert_select "tr>td", :text => "MyText".to_s, :count => 2
+    assert_select "h3", :text => "Title".to_s, :count => 2
+    assert_select "p", :text => "MyText".to_s, :count => 1
+    assert_select "p", :text => "MyOtherText".to_s, :count => 1
   end
 end

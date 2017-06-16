@@ -29,7 +29,7 @@ RSpec.describe 'Questions and Answers', type: :feature do
 
     it 'displays a list of answers' do
       visit '/questions'
-      click_link 'Show'
+      click_link question.title
 
       expect(page).to have_content question.title
       expect(page).to have_content question.description
@@ -38,7 +38,7 @@ RSpec.describe 'Questions and Answers', type: :feature do
 
     it 'displays Edit and Delete links' do
       visit '/questions'
-      click_link 'Show'
+      click_link question.title
 
       expect(page).to have_link 'Edit'
       expect(page).to have_link 'Delete'
@@ -46,7 +46,7 @@ RSpec.describe 'Questions and Answers', type: :feature do
 
     it 'links back to the questions page' do
       visit '/questions'
-      click_link 'Show'
+      click_link question.title
       click_link 'Back to all questions'
 
       expect(page).to have_content('Questions')
@@ -55,9 +55,9 @@ RSpec.describe 'Questions and Answers', type: :feature do
     describe 'creating a new answer' do
       it 'displays the answer on the question page' do
         visit '/questions'
-        click_link 'Show'
+        click_link question.title
         click_link 'New Answer'
-        fill_in 'Content', with: "Here's my answer to your q"
+        fill_in 'Answer', with: "Here's my answer to your q"
         click_button 'Create Answer'
 
         expect(page).to have_content question.title
@@ -68,7 +68,7 @@ RSpec.describe 'Questions and Answers', type: :feature do
 
       it 'goes back to question page on cancel' do
         visit '/questions'
-        click_link 'Show'
+        click_link question.title
         click_link 'New Answer'
         click_link 'Back'
 
@@ -80,7 +80,7 @@ RSpec.describe 'Questions and Answers', type: :feature do
       let(:new_question) { FactoryGirl.build(:question) }
       it 'displays the new question title and description' do
         visit '/questions'
-        click_link 'Show'
+        click_link question.title
         click_link 'Edit'
         fill_in 'Title', with: new_question.title
         fill_in 'Description', with: new_question.description
@@ -99,8 +99,8 @@ RSpec.describe 'Questions and Answers', type: :feature do
 
     it 'displays an the question title and the answer' do
       visit '/questions'
-      click_link 'Show'
-      click_link 'View'
+      click_link question.title
+      click_link answer.content
 
       expect(page).to have_content(question.title)
       expect(page).to_not have_content(question.description)
@@ -109,8 +109,8 @@ RSpec.describe 'Questions and Answers', type: :feature do
 
     it 'displays Edit and Delete links' do
       visit '/questions'
-      click_link 'Show'
-      click_link 'View'
+      click_link question.title
+      click_link answer.content
 
       expect(page).to have_link 'Edit'
       expect(page).to have_link 'Delete'
@@ -118,8 +118,8 @@ RSpec.describe 'Questions and Answers', type: :feature do
 
     it 'links back to the answers page' do
       visit '/questions'
-      click_link 'Show'
-      click_link 'View'
+      click_link question.title
+      click_link answer.content
       click_link 'Back to all answers'
 
       expect(page).to have_content('Answers')
@@ -129,10 +129,10 @@ RSpec.describe 'Questions and Answers', type: :feature do
       let(:new_answer) { FactoryGirl.build(:answer, question: question) }
       it 'displays the new question title and description' do
         visit '/questions'
-        click_link 'Show'
-        click_link 'View'
+        click_link question.title
+        click_link answer.content
         click_link 'Edit'
-        fill_in 'Content', with: new_answer.content
+        fill_in 'Answer', with: new_answer.content
         click_button 'Update Answer'
 
         expect(page).to have_content 'Answer was successfully updated.'
@@ -148,8 +148,8 @@ RSpec.describe 'Questions and Answers', type: :feature do
 
     it 'removes the answer from the question' do
       visit '/questions'
-      click_link 'Show'
-      click_link 'View'
+      click_link question.title
+      click_link answer.content
       click_link 'Delete'
 
       expect(page).to have_content('Answers')
@@ -163,7 +163,7 @@ RSpec.describe 'Questions and Answers', type: :feature do
 
     it 'removes the answer from the question' do
       visit '/questions'
-      click_link 'Show'
+      click_link question.title
       click_link 'Delete'
 
       expect(page).to have_content('Questions')
