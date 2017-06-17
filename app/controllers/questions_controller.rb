@@ -1,5 +1,6 @@
 class QuestionsController < ApplicationController
   before_action :set_question, only: [:show, :edit, :update, :destroy]
+  before_action :authenticate_user!, except: [:index, :show]
 
   # GET /questions
   # GET /questions.json
@@ -19,12 +20,16 @@ class QuestionsController < ApplicationController
 
   # GET /questions/1/edit
   def edit
+    if @question.user != current_user
+      redirect_to @question, notice: 'Question may only be edited by original author.'
+    end
   end
 
   # POST /questions
   # POST /questions.json
   def create
     @question = Question.new(question_params)
+    @question.user = current_user
 
     respond_to do |format|
       if @question.save
@@ -41,7 +46,10 @@ class QuestionsController < ApplicationController
   # PATCH/PUT /questions/1.json
   def update
     respond_to do |format|
-      if @question.update(question_params)
+      if @question.user != current_user
+        format.html { redirect_to @question, notice: 'Question may only be updated by original author.' }
+        format.json { render json: { error: 'Question could not be updated.' }, status: :unprocessable_entity }
+      elsif @question.update(question_params)
         format.html { redirect_to @question, notice: 'Question was successfully updated.' }
         format.json { render :show, status: :ok, location: @question }
       else
@@ -54,10 +62,17 @@ class QuestionsController < ApplicationController
   # DELETE /questions/1
   # DELETE /questions/1.json
   def destroy
-    @question.destroy
-    respond_to do |format|
-      format.html { redirect_to questions_url, notice: 'Question was successfully deleted.' }
-      format.json { head :no_content }
+    if @question.user != current_user
+      respond_to do |format|
+        format.html { redirect_to @question, notice: 'Question may only be deleted by original author.' }
+        format.json { render json: { error: 'Question could not be deleted.' }, status: :unprocessable_entity }
+      end
+    else
+      @question.destroy
+      respond_to do |format|
+        format.html { redirect_to questions_url, notice: 'Question was successfully deleted.' }
+        format.json { head :no_content }
+      end
     end
   end
 

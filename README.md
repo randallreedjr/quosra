@@ -13,3 +13,7 @@ Quosra is setup to use Circle CI for continuous integration.
 ## Deployment
 
 Quosra is hosted on [Heroku](https://quosra.herokuapp.com). Pushes/merges to the master branch will trigger a build and deploy to Heroku through Circle CI.
+
+## Authentication
+
+Authentication is provided by Devise. The forgot password link is disabled, since we are not setting up a mailer.

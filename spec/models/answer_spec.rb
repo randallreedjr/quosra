@@ -19,6 +19,10 @@ RSpec.describe Answer, type: :model do
     it 'belongs to a question' do
       expect(answer).to belong_to :question
     end
+
+    it 'belongs to a user' do
+      expect(answer).to belong_to :user
+    end
   end
 
   describe 'scopes' do
