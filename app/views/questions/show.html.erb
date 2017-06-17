@@ -2,6 +2,15 @@
 
 <h3><%= @question.title %></h3>
 <p><%= @question.description %></p>
+
+<hr>
+Categories
+<%= form_with(model: @question, remote: true) do |form| %>
+  <%= collection_check_boxes(:question, :category_ids, Category.order(:title), :id, :title, {class: 'checkbox__category'}) do |c| %>
+    <%= c.check_box class: 'checkbox__category', data: {question_id: @question.id}%>
+    <%= c.label %>
+  <% end %>
+<% end %>
 <hr>
 
 <strong>Answers:</strong>
