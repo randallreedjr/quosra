@@ -8,7 +8,9 @@
 <% @questions.each do |question| %>
   <h3><%= link_to question.title, question %></h3>
   <p><%= link_to question.description, question %></p>
-  <%= link_to 'Edit', edit_question_path(question), class: 'btn btn-info' %>
-  <%= link_to 'Delete', question, method: :delete, data: { confirm: 'Are you sure you want to delete this question?' }, class: 'btn btn-danger' %>
+  <% if question.user == current_user %>
+    <%= link_to 'Edit', edit_question_path(question), class: 'btn btn-info' %>
+    <%= link_to 'Delete', question, method: :delete, data: { confirm: 'Are you sure you want to delete this question?' }, class: 'btn btn-danger' %>
+  <% end %>
   <hr>
 <% end %>
