@@ -43,4 +43,16 @@ RSpec.describe Question, type: :model do
       end
     end
   end
+
+  describe 'scopes' do
+    describe 'by categories' do
+      it 'retrieves questions for the given category' do
+        category_ids = Category.all.pluck(:id)
+
+        expect(Question.by_categories(category_ids).to_sql).to eq(
+          Question.joins(:category_questions).where(category_questions: { category_id: category_ids}).distinct.to_sql
+        )
+      end
+    end
+  end
 end

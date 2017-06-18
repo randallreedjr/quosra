@@ -29,6 +29,19 @@ RSpec.describe QuestionsController, type: :controller do
 
       expect(response.body).to include('Questions')
     end
+
+    context 'when category ids are provided' do
+      let!(:question_with_category) { FactoryGirl.create(:question, :with_category) }
+      let!(:question_without_category) { FactoryGirl.create(:question) }
+
+      it 'filters the questions by category' do
+        category_ids = [question_with_category.categories.first.id]
+        get :index, params: { category_ids: category_ids }
+
+        expect(response.body).to include(CGI.escapeHTML(question_with_category.title))
+        expect(response.body).to_not include(CGI.escapeHTML(question_without_category.title))
+      end
+    end
   end
 
   describe "GET #show" do
