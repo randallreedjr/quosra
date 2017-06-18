@@ -1,4 +1,4 @@
-$(document).ready(function() {
+$(document).on('turbolinks:load', function() {
   $('input.checkbox__category').on('click', function() {
     var categoryId = $(this).val();
     var questionId = $(this).data('questionId');

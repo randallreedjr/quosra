@@ -1,4 +1,4 @@
-$(document).ready(function() {
+$(document).on('turbolinks:load', function() {
   $('span.badge__category').on('click', function() {
     var $badge = $(this);
     if($badge.hasClass('badge-default')) {
