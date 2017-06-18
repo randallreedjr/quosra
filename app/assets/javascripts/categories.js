@@ -1,8 +1,8 @@
 $(document).ready(function() {
   $('input.checkbox__category').on('click', function() {
-    let categoryId = $(this).val();
-    let questionId = $(this).data('questionId');
-    let checked = $(this).prop('checked');
+    var categoryId = $(this).val();
+    var questionId = $(this).data('questionId');
+    var checked = $(this).prop('checked');
     setCategory(questionId, categoryId, checked);
   });
 });

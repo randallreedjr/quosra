@@ -1,6 +1,6 @@
 $(document).ready(function() {
   $('span.badge__category').on('click', function() {
-    let $badge = $(this);
+    var $badge = $(this);
     if($badge.hasClass('badge-default')) {
       // activating category filter
       $badge.removeClass('badge-default');
@@ -15,7 +15,7 @@ $(document).ready(function() {
 });
 
 function filterQuestionsByCategories() {
-  let categoryIds = $.map( $('.badge-success'), function(e) {
+  var categoryIds = $.map( $('.badge-success'), function(e) {
     return $(e).data('categoryId');
   });
 
