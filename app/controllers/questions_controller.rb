@@ -5,7 +5,13 @@ class QuestionsController < ApplicationController
   # GET /questions
   # GET /questions.json
   def index
-    @questions = Question.all
+    if params[:category_ids]
+      # filter questions by categories
+      @questions = Question.by_categories(params[:category_ids])
+    else
+      # no filters
+      @questions = Question.all
+    end
   end
 
   # GET /questions/1
