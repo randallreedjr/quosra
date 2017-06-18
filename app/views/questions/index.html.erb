@@ -1,19 +1,20 @@
 <p id="notice"><%= notice %></p>
 
 <h1>Questions</h1>
+<p>Filter by Category:
+  <% Category.all.each do |category| %>
+    <span
+      class="badge badge-default badge__category"
+      data-category-id=<%= category.id %>
+    >
+      <%= category.title %>
+    </span>
+  <% end %>
+</p>
 <%= link_to 'New Question', new_question_path, {class: "btn btn-success"} %>
 
 <hr>
 
-<% @questions.each do |question| %>
-  <h3><%= link_to question.title, question %></h3>
-  <p><%= link_to question.description, question %></p>
-  <% question.categories.each do |category| %>
-    <span class="badge badge-default"><%= category.title %></span>
-  <% end %>
-  <% if question.user == current_user %>
-    <%= link_to 'Edit', edit_question_path(question), class: 'btn btn-info' %>
-    <%= link_to 'Delete', question, method: :delete, data: { confirm: 'Are you sure you want to delete this question?' }, class: 'btn btn-danger' %>
-  <% end %>
-  <hr>
-<% end %>
+<div class="questions">
+  <%= render 'question_list' %>
+</div>
