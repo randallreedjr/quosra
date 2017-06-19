@@ -1,7 +1,8 @@
 class AnswersController < ApplicationController
-  before_action :set_answer, only: [:show, :edit, :update, :destroy]
-  before_action :set_question, only: [:new, :create] # for other actions, question will come from associated answer(s)
   before_action :authenticate_user!, except: [:show]
+  before_action :set_answer, only: [:show, :edit, :update, :destroy]
+  before_action :set_question, only: [:new, :create, :update, :destroy]
+  after_action :update_elasticsearch_question, only: [:create, :update, :destroy]
 
   # GET /answers/1
   # GET /answers/1.json
@@ -42,7 +43,6 @@ class AnswersController < ApplicationController
   # PATCH/PUT /answers/1
   # PATCH/PUT /answers/1.json
   def update
-    @question = @answer.question
     respond_to do |format|
       if @answer.user != current_user
         format.html { redirect_to question_url(@question), notice: 'Answer may only be updated by original author.' }
@@ -87,5 +87,10 @@ class AnswersController < ApplicationController
     # Never trust parameters from the scary internet, only allow the white list through.
     def answer_params
       params.require(:answer).permit(:content, :question_id)
+    end
+
+    def update_elasticsearch_question
+      # need to trigger index update
+      update_elasticsearch_document(@question)
     end
 end

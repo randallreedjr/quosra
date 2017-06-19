@@ -30,16 +30,101 @@ RSpec.describe QuestionsController, type: :controller do
       expect(response.body).to include('Questions')
     end
 
-    context 'when category ids are provided' do
+    context 'when category is provided' do
       let!(:question_with_category) { FactoryGirl.create(:question, :with_category) }
       let!(:question_without_category) { FactoryGirl.create(:question) }
 
-      it 'filters the questions by category' do
-        category_ids = [question_with_category.categories.first.id]
-        get :index, params: { category_ids: category_ids }
+      it 'filters the questions by category', :elasticsearch do
+        Question.import(index: Question.index_name)
+        sleep(1)
+        categories = [question_with_category.categories.first.title]
+        get :index, params: { categories: categories }
 
         expect(response.body).to include(CGI.escapeHTML(question_with_category.title))
         expect(response.body).to_not include(CGI.escapeHTML(question_without_category.title))
+      end
+    end
+
+    context 'when search term is provided' do
+      context 'when term is in question title' do
+        let!(:question_with_search_term) { FactoryGirl.create(:question, title: 'ABCDE') }
+        let!(:question_without_search_term) { FactoryGirl.create(:question, title: 'GHIJK') }
+
+        it 'filters the questions by search term', :elasticsearch do
+          Question.import(index: Question.index_name)
+          sleep(1)
+          search_term = 'abcde'
+          get :index, params: { q: search_term }
+
+          expect(response.body).to include(CGI.escapeHTML(question_with_search_term.title))
+          expect(response.body).to_not include(CGI.escapeHTML(question_without_search_term.title))
+        end
+      end
+
+      context 'when term is in question description' do
+        let!(:question_with_search_term) { FactoryGirl.create(:question, description: 'ABCDE') }
+        let!(:question_without_search_term) { FactoryGirl.create(:question, description: 'GHIJK') }
+
+        it 'filters the questions by search term', :elasticsearch do
+          Question.import(index: Question.index_name)
+          sleep(1)
+          search_term = 'ABCDE'
+          get :index, params: { q: search_term }
+
+          expect(response.body).to include(CGI.escapeHTML(question_with_search_term.title))
+          expect(response.body).to_not include(CGI.escapeHTML(question_without_search_term.title))
+        end
+      end
+
+      context 'when term is in answer' do
+        let!(:question_with_search_term) { FactoryGirl.create(:question, :with_answer) }
+        let!(:question_without_search_term) { FactoryGirl.create(:question, :with_answer) }
+
+        it 'filters the questions by search term', :elasticsearch do
+          question_with_search_term.answers.first.update(content: 'ABCDE')
+          Question.import(index: Question.index_name)
+          sleep(1)
+          search_term = 'ABCDE'
+          get :index, params: { q: search_term }
+
+          expect(response.body).to include(CGI.escapeHTML(question_with_search_term.title))
+          expect(response.body).to_not include(CGI.escapeHTML(question_without_search_term.title))
+        end
+      end
+
+      context 'when term is in question category' do
+        let!(:category) { FactoryGirl.create(:category, title: 'ABCDE') }
+        let!(:question_with_search_term) { FactoryGirl.create(:question) }
+        let!(:question_without_search_term) { FactoryGirl.create(:question, :with_category) }
+
+        it 'filters the questions by search term', :elasticsearch do
+          question_with_search_term.categories << category
+          Question.import(index: Question.index_name)
+          sleep(1)
+          search_term = 'ABCDE'
+          get :index, params: { q: search_term }
+
+          expect(response.body).to include(CGI.escapeHTML(question_with_search_term.title))
+          expect(response.body).to_not include(CGI.escapeHTML(question_without_search_term.title))
+        end
+      end
+    end
+
+    context 'when category and search term is provided' do
+      let!(:category) { FactoryGirl.create(:category, title: 'GHIJK') }
+      let!(:question_with_category) { FactoryGirl.create(:question) }
+      let!(:question_with_search_term) { FactoryGirl.create(:question, title: 'ABCDE') }
+      let!(:question_with_category_and_search_term) { FactoryGirl.create(:question, title: 'ABCDE') }
+      it 'filters the questions by category and search term' do
+        question_with_category.categories << category
+        question_with_category_and_search_term.categories << category
+        Question.import(index: Question.index_name)
+        sleep(1)
+        get :index, params: { q: 'ABCDE', categories: ['GHIJK'] }
+
+        expect(response.body).to_not include(CGI.escapeHTML(question_with_search_term.description))
+        expect(response.body).to_not include(CGI.escapeHTML(question_with_category.description))
+        expect(response.body).to include(CGI.escapeHTML(question_with_category_and_search_term.description))
       end
     end
   end

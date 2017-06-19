@@ -7,5 +7,9 @@ FactoryGirl.define do
     trait :with_category do
       after(:create) { |question| question.categories << FactoryGirl.create(:category) }
     end
+
+    trait :with_answer do
+      after(:create) { |question| question.answers << FactoryGirl.create(:answer) }
+    end
   end
 end
