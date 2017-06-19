@@ -1,16 +1,28 @@
 class Question < ApplicationRecord
-  validates_presence_of :title
-
   belongs_to :user
   has_many :answers, dependent: :destroy
   has_many :category_questions, dependent: :destroy
   has_many :categories, through: :category_questions
 
-  scope :by_categories, -> (category_ids) {
+  validates_presence_of :title
+
+  include Elasticsearch::Model
+  include Elasticsearch::Model::Callbacks
+  index_name [Rails.env, 'questions'].join('_')
+
+  scope :by_category, -> (category_id) {
     joins(:category_questions)
     .where(category_questions: {
-      category_id: category_ids
+      category_id: category_id
     })
-    .distinct
   }
+
+  def as_indexed_json(options={})
+    self.as_json(
+      include: {
+        categories: { methods: [:title], only: [:title] },
+        answers: { methods: [:content], only: [:content] }
+      }
+    )
+  end
 end

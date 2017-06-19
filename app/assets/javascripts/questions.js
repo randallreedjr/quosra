@@ -15,15 +15,17 @@ $(document).on('turbolinks:load', function() {
 });
 
 function filterQuestionsByCategories() {
-  var categoryIds = $.map( $('.badge-success'), function(e) {
-    return $(e).data('categoryId');
+  var categories = $.map( $('.badge-success'), function(element) {
+    return element.innerText;
   });
+  var $query = $('.input__search').val();
 
   $.ajax({
     url: "/questions",
     type:"GET",
     data:{
-      category_ids: categoryIds
+      categories: categories,
+      q: $query
     },
     dataType: 'script',
     success:function(data){

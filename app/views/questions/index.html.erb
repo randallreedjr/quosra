@@ -1,6 +1,9 @@
 <p id="notice"><%= notice %></p>
 
 <h1>Questions</h1>
+
+<%= render 'search' %>
+
 <p>Filter by Category:
   <% Category.all.each do |category| %>
     <span

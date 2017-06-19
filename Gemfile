@@ -38,13 +38,17 @@ gem 'factory_girl'
 gem 'factory_girl_rails'
 gem 'faker'
 # Use shoulda matchers for testing model validations
- gem 'shoulda-matchers', require: false
- # Use capybara for feature specs
- gem 'capybara'
+gem 'shoulda-matchers', require: false
+# Use capybara for feature specs
+gem 'capybara'
 
- # Bootstrap for grid layout and styling
- gem 'bootstrap', git: 'https://github.com/twbs/bootstrap-rubygem'
- gem 'jquery-rails'
+# Bootstrap for grid layout and styling
+gem 'bootstrap', git: 'https://github.com/twbs/bootstrap-rubygem'
+gem 'jquery-rails'
+
+# Elasticsearch for text searching
+gem 'elasticsearch-model'
+gem 'elasticsearch-rails'
 
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
