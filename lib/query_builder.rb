@@ -1,7 +1,7 @@
 class QueryBuilder
   attr_reader :query, :search_term, :categories, :max_results
 
-  def initialize(search_term: '', categories: [], max_results: 10)
+  def initialize(search_term: '', categories: [], max_results: 20)
     @search_term = search_term
     @categories = categories
     @max_results = max_results
