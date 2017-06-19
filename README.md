@@ -17,3 +17,7 @@ Quosra is hosted on [Heroku](https://quosra.herokuapp.com). Pushes/merges to the
 ## Authentication
 
 Authentication is provided by Devise. The forgot password link is disabled, since we are not setting up a mailer.
+
+## Search
+
+Full-text search of questions, answers, and categories, as well as a category filter, is implemented using Elasticsearch v5.4.1. The SearchBox add-on has been activated on Heroku to run the Elasticsearch server.

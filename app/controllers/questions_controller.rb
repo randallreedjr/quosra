@@ -1,3 +1,5 @@
+require 'query_builder'
+
 class QuestionsController < ApplicationController
   before_action :set_question, only: [:show, :edit, :update, :destroy]
   before_action :authenticate_user!, except: [:index, :show]
@@ -5,13 +7,8 @@ class QuestionsController < ApplicationController
   # GET /questions
   # GET /questions.json
   def index
-    if params[:category_ids]
-      # filter questions by categories
-      @questions = Question.by_categories(params[:category_ids])
-    else
-      # no filters
-      @questions = Question.all
-    end
+    qb = QueryBuilder.new(search_term: params[:q], categories: params[:categories])
+    @questions = Question.search(qb.build).records
   end
 
   # GET /questions/1
@@ -83,14 +80,14 @@ class QuestionsController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_question
-      @question = Question.includes(:answers).find(params[:id])
-      @answers = @question.answers
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_question
+    @question = Question.includes(:answers).find(params[:id])
+    @answers = @question.answers
+  end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def question_params
-      params.require(:question).permit(:title, :description)
-    end
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def question_params
+    params.require(:question).permit(:title, :description)
+  end
 end

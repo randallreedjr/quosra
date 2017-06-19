@@ -1,15 +1,18 @@
 require 'rails_helper'
 
 RSpec.describe 'Questions and Answers', type: :feature do
-  let(:current_user) { FactoryGirl.create(:user) }
-  let(:question) { FactoryGirl.create(:question, user: current_user) }
-  let!(:answer) { FactoryGirl.create(:answer, question: question, user: current_user) }
-
   before :each do
-    sign_in current_user
+    @current_user = FactoryGirl.create(:user)
+    @question = FactoryGirl.create(:question, user: @current_user)
+    @answer = FactoryGirl.create(:answer, question: @question, user: @current_user)
+    # Feature specs do not play well with elasticsearch
+    Question.import(index: Question.index_name)
+    sleep(1)
+    sign_in @current_user
+    visit '/questions'
   end
 
-  context 'viewing list of questions' do
+  describe 'viewing list of questions' do
     describe 'creating a new question' do
       it 'displays the question on the questions page' do
         visit '/questions'
@@ -25,19 +28,19 @@ RSpec.describe 'Questions and Answers', type: :feature do
     end
   end
 
-  context 'viewing a question' do
+  describe 'viewing a question', :elasticsearch do
     it 'displays a list of answers' do
       visit '/questions'
-      click_link question.title
+      click_link @question.title
 
-      expect(page).to have_content question.title
-      expect(page).to have_content question.description
-      expect(page).to have_content answer.content
+      expect(page).to have_content @question.title
+      expect(page).to have_content @question.description
+      expect(page).to have_content @answer.content
     end
 
     it 'displays Edit and Delete links' do
       visit '/questions'
-      click_link question.title
+      click_link @question.title
 
       expect(page).to have_link 'Edit'
       expect(page).to have_link 'Delete'
@@ -45,7 +48,7 @@ RSpec.describe 'Questions and Answers', type: :feature do
 
     it 'links back to the questions page' do
       visit '/questions'
-      click_link question.title
+      click_link @question.title
       click_link 'Back to all questions'
 
       expect(page).to have_content('Questions')
@@ -54,24 +57,24 @@ RSpec.describe 'Questions and Answers', type: :feature do
     describe 'creating a new answer' do
       it 'displays the answer on the question page' do
         visit '/questions'
-        click_link question.title
+        click_link @question.title
         click_link 'New Answer'
         fill_in 'Answer', with: "Here's my answer to your q"
         click_button 'Create Answer'
 
-        expect(page).to have_content question.title
-        expect(page).to have_content question.description
-        expect(page).to have_content answer.content
+        expect(page).to have_content @question.title
+        expect(page).to have_content @question.description
+        expect(page).to have_content @answer.content
         expect(page).to have_content "Here's my answer to your q"
       end
 
       it 'goes back to question page on cancel' do
         visit '/questions'
-        click_link question.title
+        click_link @question.title
         click_link 'New Answer'
         click_link 'Back'
 
-        expect(page).to have_content question.description
+        expect(page).to have_content @question.description
       end
     end
 
@@ -79,7 +82,7 @@ RSpec.describe 'Questions and Answers', type: :feature do
       let(:new_question) { FactoryGirl.build(:question) }
       it 'displays the new question title and description' do
         visit '/questions'
-        click_link question.title
+        click_link @question.title
         click_link 'Edit'
         fill_in 'Title', with: new_question.title
         fill_in 'Description', with: new_question.description
@@ -92,21 +95,21 @@ RSpec.describe 'Questions and Answers', type: :feature do
     end
   end
 
-  context 'viewing an answer' do
+  describe 'viewing an answer', :elasticsearch do
     it 'displays an the question title and the answer' do
       visit '/questions'
-      click_link question.title
-      click_link answer.content
+      click_link @question.title
+      click_link @answer.content
 
-      expect(page).to have_content(question.title)
-      expect(page).to_not have_content(question.description)
-      expect(page).to have_content(answer.content)
+      expect(page).to have_content(@question.title)
+      expect(page).to_not have_content(@question.description)
+      expect(page).to have_content(@answer.content)
     end
 
     it 'displays Edit and Delete links' do
       visit '/questions'
-      click_link question.title
-      click_link answer.content
+      click_link @question.title
+      click_link @answer.content
 
       expect(page).to have_link 'Edit'
       expect(page).to have_link 'Delete'
@@ -114,19 +117,19 @@ RSpec.describe 'Questions and Answers', type: :feature do
 
     it 'links back to the answers page' do
       visit '/questions'
-      click_link question.title
-      click_link answer.content
+      click_link @question.title
+      click_link @answer.content
       click_link 'Back to all answers'
 
       expect(page).to have_content('Answers')
     end
 
     describe 'updating an answer' do
-      let(:new_answer) { FactoryGirl.build(:answer, question: question) }
+      let(:new_answer) { FactoryGirl.build(:answer, question: @question) }
       it 'displays the new question title and description' do
         visit '/questions'
-        click_link question.title
-        click_link answer.content
+        click_link @question.title
+        click_link @answer.content
         click_link 'Edit'
         fill_in 'Answer', with: new_answer.content
         click_button 'Update Answer'
@@ -138,26 +141,26 @@ RSpec.describe 'Questions and Answers', type: :feature do
     end
   end
 
-  describe 'deleting an answer' do
+  describe 'deleting an answer', :elasticsearch do
     it 'removes the answer from the question' do
       visit '/questions'
-      click_link question.title
-      click_link answer.content
+      click_link @question.title
+      click_link @answer.content
       click_link 'Delete'
 
       expect(page).to have_content('Answers')
-      expect(page).to_not have_content(answer.content)
+      expect(page).to_not have_content(@answer.content)
     end
   end
 
-  describe 'deleting an question' do
+  describe 'deleting an question', :elasticsearch do
     it 'removes the answer from the question' do
       visit '/questions'
-      click_link question.title
+      click_link @question.title
       click_link 'Delete'
 
       expect(page).to have_content('Questions')
-      expect(page).to_not have_content(question.title)
+      expect(page).to_not have_content(@question.title)
     end
   end
 end

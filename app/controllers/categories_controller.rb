@@ -1,5 +1,7 @@
 class CategoriesController < ApplicationController
   before_action :set_category, only: [:show, :edit, :update, :destroy]
+  before_action :retrieve_category_questions, only: [:update, :destroy]
+  after_action :update_elasticsearch_question, only: [:update, :destroy]
 
   # GET /categories
   # GET /categories.json
@@ -70,5 +72,16 @@ class CategoriesController < ApplicationController
     # Never trust parameters from the scary internet, only allow the white list through.
     def category_params
       params.require(:category).permit(:title)
+    end
+
+    def retrieve_category_questions
+      # retrieve questions that may need elasticsearch document updated
+      @questions = Category.questions
+    end
+
+    def update_elasticsearch_question
+      @questions.each do |question|
+        update_elasticsearch_document question
+      end
     end
 end

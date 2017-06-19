@@ -1,0 +1,8 @@
+<%= form_tag("/questions", method: "get", remote: true) do %>
+  <div class="input-group">
+    <%= text_field_tag(:q, nil, class: 'form-control input__search', placeholder:"Search questions for...") %>
+    <span class="input-group-btn">
+      <%= submit_tag("Search", class: 'btn btn-info') %>
+    </span>
+  </div>
+<% end %>
